@@ -1,6 +1,5 @@
 # odin-miniz
 [![license](https://img.shields.io/github/license/ReneHSZ/odin-miniz.svg)](https://github.com/ReneHSZ/odin-miniz/blob/master/LICENSE)
-[![downloads](https://img.shields.io/github/downloads/ReneHSZ/odin-miniz/total.svg)](https://github.com/ReneHSZ/odin-miniz)
 [![contributors](https://img.shields.io/github/contributors/ReneHSZ/odin-miniz.svg)](https://github.com/ReneHSZ/odin-miniz/graphs/contributors)
 [![issues](https://img.shields.io/github/issues/ReneHSZ/odin-miniz.svg)](https://github.com/ReneHSZ/odin-miniz/issues)
 

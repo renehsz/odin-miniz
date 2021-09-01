@@ -1,10 +1,16 @@
 #!/bin/sh
+VERSION="2.2.0"
 
-git submodule init
-git submodule update
+if [ -z "$CC" ]; then
+    export CC=gcc
+fi
+if [ -z "$AR" ]; then
+    export AR=ar
+fi
 
-cd miniz && sh amalgamate.sh && cd ..
+curl -LO "https://github.com/richgel999/miniz/releases/download/$VERSION/miniz-$VERSION.zip" \
+    && unzip "miniz-$VERSION.zip" -d ./miniz/
+$CC -c -o miniz/miniz.o miniz/miniz.c
 
-cc -c -std=c99 miniz/miniz.c -o miniz/miniz.o
+$AR rc miniz/libminiz.a miniz/miniz.o
 
-ar rcu miniz/libminiz.a miniz/miniz.o

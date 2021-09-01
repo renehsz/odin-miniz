@@ -1,3 +1,5 @@
+package miniz
+
 when ODIN_OS == "windows" {
 	foreign import miniz "miniz/miniz.lib"
 } else {
@@ -20,7 +22,7 @@ c_int    :: i32;
 c_uint   :: u32;
 
 // Miniz common
-CompressionLevel :: enum {
+Compression_Level :: enum c_int {
 	NO_COMPRESSION      = 0,
 	BEST_SPEED          = 1,
 	BEST_COMPRESSION    = 9,
@@ -29,7 +31,7 @@ CompressionLevel :: enum {
 	DEFAULT_COMPRESSION = -1,
 }
 
-FlushValue :: enum {
+Flush_Value :: enum c_int {
 	NO_FLUSH      = 0,
 	PARTIAL_FLUSH = 1,
 	SYNC_FLUSH    = 2,
@@ -38,7 +40,7 @@ FlushValue :: enum {
 	BLOCK         = 5,
 }
 
-ReturnStatusCode :: enum {
+Return_Status_Code :: enum c_int {
 	OK            =  0,
 	STREAM_END    =  1,
 	NEED_DICT     =  2,
@@ -85,37 +87,37 @@ foreign miniz {
 	@(link_name="mz_adler32")       adler32 :: proc(adler: c_ulong, ptr: ^byte, buf_len: c_size_t) -> c_ulong ---;
 	@(link_name="mz_crc32")         crc32   :: proc(crc: c_ulong, ptr: ^byte, buf_len: c_size_t) -> c_ulong ---;
 
-	@(link_name="mz_deflateInit")   deflate_init :: proc(pStream: ^Stream, level: c_int) -> ReturnStatusCode ---;
-	@(link_name="mz_deflateInit2")  deflate_init_2 :: proc(pStream: ^Stream, level, method, window_bits, mem_level, strategy: c_int) -> ReturnStatusCode ---;
-	@(link_name="mz_deflateReset")  deflate_reset  :: proc(pStream: ^Stream) -> ReturnStatusCode ---;
-	@(link_name="mz_deflate")       deflate        :: proc(pStream: ^Stream, flush: c_int) -> ReturnStatusCode ---;
-	@(link_name="mz_deflateEnd")    deflate_end    :: proc(pStream: ^Stream) -> ReturnStatusCode ---;
+	@(link_name="mz_deflateInit")   deflate_init :: proc(pStream: ^Stream, level: Compression_Level) -> Return_Status_Code ---;
+	@(link_name="mz_deflateInit2")  deflate_init_2 :: proc(pStream: ^Stream, level, method, window_bits, mem_level, strategy: c_int) -> Return_Status_Code ---;
+	@(link_name="mz_deflateReset")  deflate_reset  :: proc(pStream: ^Stream) -> Return_Status_Code ---;
+	@(link_name="mz_deflate")       deflate        :: proc(pStream: ^Stream, flush: Flush_Value) -> Return_Status_Code ---;
+	@(link_name="mz_deflateEnd")    deflate_end    :: proc(pStream: ^Stream) -> Return_Status_Code ---;
 	@(link_name="mz_deflateBound")  deflate_bound  :: proc(pStream: ^Stream, source_len: c_ulong) -> c_ulong ---;
 
-	@(link_name="mz_compress")      compress       :: proc(pDest: ^byte, pDest_len: ^c_ulong, pSource: ^byte, source_len: c_ulong) -> ReturnStatusCode ---;
-	@(link_name="mz_compress2")     compress_2     :: proc(pDest: ^byte, pDest_len: ^c_ulong, pSource: ^byte, source_len: c_ulong) -> ReturnStatusCode ---;
+	@(link_name="mz_compress")      compress       :: proc(pDest: ^byte, pDest_len: ^c_ulong, pSource: ^byte, source_len: c_ulong) -> Return_Status_Code ---;
+	@(link_name="mz_compress2")     compress_2     :: proc(pDest: ^byte, pDest_len: ^c_ulong, pSource: ^byte, source_len: c_ulong) -> Return_Status_Code ---;
 	@(link_name="mz_compressBound") compress_bound :: proc(source_len: c_ulong) -> c_ulong ---;
 
-	@(link_name="mz_inflateInit")   inflate_init   :: proc(pStream: ^Stream) -> ReturnStatusCode ---;
-	@(link_name="mz_inflateInit2")  inflate_init_2 :: proc(pStream: ^Stream, window_bits: c_int) -> ReturnStatusCode ---;
-	@(link_name="mz_inflate")       inflate        :: proc(pStream: ^Stream, flush: c_int) -> ReturnStatusCode ---;
-	@(link_name="mz_inflateEnd")    inflate_end    :: proc(pStream: ^Stream) -> ReturnStatusCode ---;
+	@(link_name="mz_inflateInit")   inflate_init   :: proc(pStream: ^Stream) -> Return_Status_Code ---;
+	@(link_name="mz_inflateInit2")  inflate_init_2 :: proc(pStream: ^Stream, window_bits: c_int) -> Return_Status_Code ---;
+	@(link_name="mz_inflate")       inflate        :: proc(pStream: ^Stream, flush: c_int) -> Return_Status_Code ---;
+	@(link_name="mz_inflateEnd")    inflate_end    :: proc(pStream: ^Stream) -> Return_Status_Code ---;
 
-	@(link_name="mz_uncompress")    uncompress     :: proc(pDest: ^byte, pDest_len: c_ulong, pSource: ^byte, source_len: c_ulong) -> ReturnStatusCode ---;
+	@(link_name="mz_uncompress")    uncompress     :: proc(pDest: ^byte, pDest_len: c_ulong, pSource: ^byte, source_len: c_ulong) -> Return_Status_Code ---;
 
 	@(link_name="mz_error")         error          :: proc(err: c_int) -> ^byte ---;
 }
 
 // Miniz tinfl
 // TODO(ReneHSZ): Macros TINFL_HUFF_BITBUF_FILL, TINFL_HUFF_DECODE, ...
-TinflFlag :: enum {
+Tinfl_Flag :: enum {
 	PARSE_ZLIB_HEADER             = 1,
 	HAS_MORE_INPUT                = 2,
 	USING_NON_WRAPPING_OUTPUT_BUF = 4,
 	COMPUTE_ADLER32               = 8,
 }
 
-TinflStatus :: enum {
+Tinfl_Status :: enum {
 	/* This flags indicates the inflator needs 1 or more input bytes to make forward progress, but the caller is indicating that no more are available. The compressed data */
     /* is probably corrupted. If you call the inflator again with more bytes it'll try to continue processing the input but this is a BAD sign (either the data is corrupted or you called it incorrectly). */
     /* If you call it again with no input you'll just get TINFL_STATUS_FAILED_CANNOT_MAKE_PROGRESS again. */
@@ -148,19 +150,19 @@ TinflStatus :: enum {
     TINFL_STATUS_HAS_MORE_OUTPUT  = 2,
 }
 
-TinflDecompressor :: struct {
+Tinfl_Decompressor :: struct {
 	// Note(ReneHSZ): This can be left empty, because we are only dealing with pointers to this structure and it is allocated in C.
 }
 
-TinflPutBufFuncPtr :: ^proc(pBuf: rawptr, len: c_int, pUser: rawptr) -> c_int;
+Tinfl_Put_Buf_Func_Ptr :: ^proc(pBuf: rawptr, len: c_int, pUser: rawptr) -> c_int;
 
 foreign miniz {
 	@(link_name="tinfl_decompress_mem_to_heap")     tinfl_decompress_mem_to_heap     :: proc(pSrc_buf: rawptr, src_buf_len, pOut_len: c_size_t, flags: c_int) -> rawptr ---;
 	@(link_name="tinfl_decompress_mem_to_mem")      tinfl_decompress_mem_to_mem      :: proc(pOut_buf: rawptr, out_buf_len: c_size_t, pSrc_buf: rawptr, src_buf_len: c_size_t, flags: c_int) -> c_size_t ---;
-	@(link_name="tinfl_decompress_mem_to_callback") tinfl_decompress_mem_to_callback :: proc(pIn_buf: rawptr, pIn_buf_size: c_size_t, pPut_buf_func: TinflPutBufFuncPtr, pPut_buf_user: rawptr, flags: c_int) -> TinflStatus ---;
-	@(link_name="tinfl_decompressor_alloc")         tinfl_decompressor_alloc         :: proc() -> ^TinflDecompressor ---;
-	@(link_name="tinfl_decompressor_free")          tinfl_decompressor_free          :: proc(pDecomp: ^TinflDecompressor) ---;
-	@(link_name="tinfl_decompress")                 tinfl_decompress                 :: proc(r: ^TinflDecompressor, pIn_buf_next: ^u8, pIn_buf_size: ^c_size_t, pOut_buf_start: ^u8, pOut_buf_next: ^u8, pOut_buf_size: ^c_size_t, decomp_flags: u32) -> TinflStatus ---;
+	@(link_name="tinfl_decompress_mem_to_callback") tinfl_decompress_mem_to_callback :: proc(pIn_buf: rawptr, pIn_buf_size: c_size_t, pPut_buf_func: Tinfl_Put_Buf_Func_Ptr, pPut_buf_user: rawptr, flags: c_int) -> Tinfl_Status ---;
+	@(link_name="tinfl_decompressor_alloc")         tinfl_decompressor_alloc         :: proc() -> ^Tinfl_Decompressor ---;
+	@(link_name="tinfl_decompressor_free")          tinfl_decompressor_free          :: proc(pDecomp: ^Tinfl_Decompressor) ---;
+	@(link_name="tinfl_decompress")                 tinfl_decompress                 :: proc(r: ^Tinfl_Decompressor, pIn_buf_next: ^u8, pIn_buf_size: ^c_size_t, pOut_buf_start: ^u8, pOut_buf_next: ^u8, pOut_buf_size: ^c_size_t, decomp_flags: u32) -> Tinfl_Status ---;
 
 }
 
@@ -178,7 +180,7 @@ foreign miniz {
 /* FORCE_ALL_STATIC_BLOCKS: Disable usage of optimized Huffman tables. */
 /* FORCE_ALL_RAW_BLOCKS: Only use raw (uncompressed) deflate blocks. */
 /* The low 12 bits are reserved to control the max # of hash probes per dictionary lookup (see MAX_PROBES_MASK). */
-TdeflCompressionFlags :: enum {
+_Compression_Flags :: enum {
 	HUFFMAN_ONLY = 0,
 	DEFAULT_MAX_PROBES = 128,
 	MAX_PROBES_MASK = 0xFFF,
@@ -221,7 +223,7 @@ when false /* TDEFL_LESS_MEMORY */ {
 }
 
 /* The low-level tdefl functions below may be used directly if the above helper functions aren't flexible enough. The low-level functions don't make any heap allocations, unlike the above helper functions. */
-TdeflStatus :: enum {
+Tdefl_Status :: enum c_int {
 	STATUS_BAD_PARAM      = -2,
 	STATUS_PUT_BUF_FAILED = -1,
 	STATUS_OKAY           = 0,
@@ -229,7 +231,7 @@ TdeflStatus :: enum {
 }
 
 /* Must map to MZ_NO_FLUSH, MZ_SYNC_FLUSH, etc. enums */
-TdeflFlush :: enum {
+Tdefl_Flush :: enum c_int {
 	NO_FLUSH   = 0,
 	SYNC_FLUSH = 2,
 	FULL_FLUSH = 3,
@@ -237,11 +239,11 @@ TdeflFlush :: enum {
 }
 
 /* Output stream interface. The compressor uses this interface to write compressed data. It'll typically be called TDEFL_OUT_BUF_SIZE at a time. */
-TdeflPutBufFuncPtr :: ^proc(pBuf: rawptr, len: c_int, pUser: rawptr) -> bool;
+Tdefl_Put_Buf_Func_Ptr :: ^proc(pBuf: rawptr, len: c_int, pUser: rawptr) -> bool;
 
 /* tdefl's compression state structure. */
-TdeflCompressor :: struct {
-	m_pPut_buf_func:          TdeflPutBufFuncPtr,
+Compressor :: struct {
+	m_pPut_buf_func:          Tdefl_Put_Buf_Func_Ptr,
 	m_pPut_buf_user:          rawptr,
 	m_flags:                  c_uint,
 	m_max_probes:             [2]c_uint,
@@ -267,12 +269,12 @@ TdeflCompressor :: struct {
 	m_finished:               c_uint,
 	m_block_index:            c_uint,
 	m_wants_to_finish:        c_uint,
-	m_prev_return_status:     TdeflStatus,
+	m_prev_return_status:     Tdefl_Status,
 	m_pIn_buf:                rawptr,
 	m_pOut_buf:               rawptr,
 	m_pIn_buf_size:           ^c_size_t,
 	m_pOut_buf_size:          ^c_size_t,
-	m_flush:                  TdeflFlush,
+	m_flush:                  Tdefl_Flush,
 	m_pSrc:                   ^u8,
 	m_src_buf_left,m_out_bufl:c_size_t,
 	m_dict:                   [LZ_DICT_SIZE + MAX_MATCH_LEN - 1]u8,
@@ -291,17 +293,17 @@ foreign miniz {
 	/* pBut_buf_func: If NULL, output data will be supplied to the specified callback. In this case, the user should call the tdefl_compress_buffer() API for compression. */
 	/* If pBut_buf_func is NULL the user should always call the tdefl_compress() API. */
 	/* flags: See the above enums (TDEFL_HUFFMAN_ONLY, TDEFL_WRITE_ZLIB_HEADER, etc.) */
-	@(link_name="tdefl_init")     tdefl_init     :: proc(d: ^TdeflCompressor, pPut_buf_func: TdeflPutBufFuncPtr, pPut_buf_user: rawptr, flags: c_int) -> TdeflStatus ---;
+	@(link_name="tdefl_init")     tdefl_init     :: proc(d: ^Compressor, pPut_buf_func: Tdefl_Put_Buf_Func_Ptr, pPut_buf_user: rawptr, flags: c_int) -> Tdefl_Status ---;
 
 	/* Compresses a block of data, consuming as much of the specified input buffer as possible, and writing as much compressed data to the specified output buffer as possible. */
-	@(link_name="tdefl_compress") tdefl_compress :: proc(d: ^TdeflCompressor, pIn_buf: rawptr, pIn_buf_size: ^c_size_t, pOut_buf: rawptr, pOut_buf_size: c_size_t, flush: TdeflFlush) -> TdeflStatus ---;
+	@(link_name="tdefl_compress") tdefl_compress :: proc(d: ^Compressor, pIn_buf: rawptr, pIn_buf_size: ^c_size_t, pOut_buf: rawptr, pOut_buf_size: c_size_t, flush: Tdefl_Flush) -> Tdefl_Status ---;
 
 	/* tdefl_compress_buffer() is only usable when the tdefl_init() is called with a non-NULL tdefl_put_buf_func_ptr. */
 	/* tdefl_compress_buffer() always consumes the entire input buffer. */
-	@(link_name="tdefl_compress_buffer") tdefl_compress_buffer :: proc(d: ^TdeflCompressor, pIn_buf: rawptr, in_buf_size: c_size_t, flush: TdeflFlush) -> TdeflStatus ---;
+	@(link_name="tdefl_compress_buffer") tdefl_compress_buffer :: proc(d: ^Compressor, pIn_buf: rawptr, in_buf_size: c_size_t, flush: Tdefl_Flush) -> Tdefl_Status ---;
 
-	@(link_name="tdefl_get_prev_return_status") tdefl_get_prev_return_status :: proc(d: ^TdeflCompressor) -> TdeflStatus ---;
-	@(link_name="tdefl_get_adler32")            tdefl_get_adler32            :: proc(d: ^TdeflCompressor) -> u32 ---;
+	@(link_name="tdefl_get_prev_return_status") tdefl_get_prev_return_status :: proc(d: ^Compressor) -> Tdefl_Status ---;
+	@(link_name="tdefl_get_adler32")            tdefl_get_adler32            :: proc(d: ^Compressor) -> u32 ---;
 
 	/* Create tdefl_compress() flags given zlib-style compression parameters. */
 	/* level may range from [0,10] (where 10 is absolute max compression, but may be much slower on some files) */
@@ -312,8 +314,8 @@ foreign miniz {
 	/* Allocate the tdefl_compressor structure in C so that */
 	/* non-C language bindings to tdefl_ API don't need to worry about */
 	/* structure size and allocation mechanism. */
-	@(link_name="tdefl_compressor_alloc") tdefl_compressor_alloc :: proc() -> ^TdeflCompressor ---;
-	@(link_name="tdefl_compressor_free")  tdefl_compressor_free  :: proc(pComp: ^TdeflCompressor) ---;
+	@(link_name="tdefl_compressor_alloc") tdefl_compressor_alloc :: proc() -> ^Compressor ---;
+	@(link_name="tdefl_compressor_free")  tdefl_compressor_free  :: proc(pComp: ^Compressor) ---;
 
 	/* High level compression functions: */
 	/* tdefl_compress_mem_to_heap() compresses a block in memory to a heap block allocated via malloc(). */
@@ -344,7 +346,7 @@ foreign miniz {
 	@(link_name="tdefl_write_image_to_png_file_in_memory")    tdefl_write_image_to_png_file_in_memory    :: proc(pImage: rawptr, w, h, num_chans: c_int, pLen_out: ^c_size_t) -> rawptr ---;
 
 	/* tdefl_compress_mem_to_output() compresses a block to an output stream. The above helpers use this function internally. */
-	@(link_name="tdefl_compress_mem_to_output")               tdefl_compress_mem_to_output               :: proc(pBuf: rawptr, buf_len: c_size_t, pPut_buf_func: TdeflPutBufFuncPtr, pPut_buf_user: rawptr, flags: c_int) -> bool ---;
+	@(link_name="tdefl_compress_mem_to_output")               tdefl_compress_mem_to_output               :: proc(pBuf: rawptr, buf_len: c_size_t, pPut_buf_func: Tdefl_Put_Buf_Func_Ptr, pPut_buf_user: rawptr, flags: c_int) -> bool ---;
 
 
 }
